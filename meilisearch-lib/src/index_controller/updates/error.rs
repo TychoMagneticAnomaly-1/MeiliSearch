@@ -20,6 +20,8 @@ pub enum UpdateActorError {
     )]
     FatalUpdateStoreError,
     #[error("{0}")]
+    MalformedPayload(Box<dyn Error + Send + Sync + 'static>),
+    #[error("{0}")]
     InvalidPayload(Box<dyn Error + Send + Sync + 'static>),
     #[error("{0}")]
     PayloadError(#[from] actix_web::error::PayloadError),
@@ -52,6 +54,7 @@ impl ErrorCode for UpdateActorError {
             UpdateActorError::IndexActor(e) => e.error_code(),
             UpdateActorError::FatalUpdateStoreError => Code::Internal,
             UpdateActorError::InvalidPayload(_) => Code::BadRequest,
+            UpdateActorError::MalformedPayload(_) => Code::BadRequest,
             UpdateActorError::PayloadError(error) => match error {
                 actix_web::error::PayloadError::Overflow => Code::PayloadTooLarge,
                 _ => Code::Internal,
